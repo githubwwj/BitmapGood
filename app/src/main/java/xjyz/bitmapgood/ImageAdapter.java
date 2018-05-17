@@ -46,6 +46,7 @@ public class ImageAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
+        
 //        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.mipmap.house);
         Bitmap bitmap=ImageReszie.resizeBitmap(context.getResources(),R.mipmap.house,200,200);
         holder.imageView.setImageBitmap(bitmap);
