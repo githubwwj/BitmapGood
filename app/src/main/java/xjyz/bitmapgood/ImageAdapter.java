@@ -2,7 +2,7 @@ package xjyz.bitmapgood;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,9 +47,17 @@ public class ImageAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 //        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.mipmap.house);
-        Bitmap bitmap=ImageReszie.resizeBitmap(context.getResources(),R.mipmap.house,200,200);
-        holder.imageView.setImageBitmap(bitmap);
 
+        Bitmap bitmap = ImageCache.getInstance(context).getBitmapFromMemory(String.valueOf(position));
+        Log.e("tag","-----------内存中bitmap="+bitmap);
+        if (null == bitmap) {
+            bitmap = ImageCache.getInstance(context).getReuseBitmap(200, 200, 1);
+            Log.e("tag","-----------复用池中bitmap="+bitmap);
+            bitmap = ImageReszie.resizeBitmap(context.getResources(), R.mipmap.house, 200, 200, bitmap);
+            Log.e("tag","-----------bitmap="+bitmap);
+            ImageCache.getInstance(context).putBitmapMemory(String.valueOf(position), bitmap);
+        }
+        holder.imageView.setImageBitmap(bitmap);
         return convertView;
     }
 
