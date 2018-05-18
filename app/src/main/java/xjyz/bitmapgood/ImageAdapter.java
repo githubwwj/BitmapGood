@@ -23,7 +23,7 @@ public class ImageAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return 999;
+        return 666;
     }
 
     @Override
@@ -48,18 +48,25 @@ public class ImageAdapter extends BaseAdapter {
         }
 //        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.mipmap.house);
 
-        Bitmap bitmap = ImageCache.getInstance(context).getBitmapFromMemory(String.valueOf(position));
-        Log.e("tag","-----------内存中bitmap="+bitmap);
+        Bitmap bitmap = ImageCache.getInstance().getBitmapFromMemory(String.valueOf(position));
+        Log.e("tag", "-----------复用内存=" + bitmap);
         if (null == bitmap) {
-            bitmap = ImageCache.getInstance(context).getReuseBitmap(200, 200, 1);
-            Log.e("tag","-----------复用池中bitmap="+bitmap);
-            bitmap = ImageReszie.resizeBitmap(context.getResources(), R.mipmap.house, 200, 200, bitmap);
-            Log.e("tag","-----------bitmap="+bitmap);
-            ImageCache.getInstance(context).putBitmapMemory(String.valueOf(position), bitmap);
+            Bitmap reuseBitmap = ImageCache.getInstance().getReuseBitmap(200, 200, 1);
+            Log.e("tag", "-----------复用池=" + reuseBitmap);
+            bitmap = ImageCache.getInstance().getBitmapFromDisk(String.valueOf(position), reuseBitmap);
+            if(null!=bitmap){
+                Log.e("tag", "-----------磁盘中的图片=" + bitmap);
+            }else{
+                bitmap = ImageReszie.resizeBitmap(context, R.mipmap.house, 200, 200, true, reuseBitmap);
+                Log.e("tag", "----------创建一张新图片大小是=" + bitmap.getByteCount());
+                ImageCache.getInstance().putBitmapMemory(String.valueOf(position), bitmap);
+                ImageCache.getInstance().putBitmapDisk(String.valueOf(position), bitmap);
+            }
         }
         holder.imageView.setImageBitmap(bitmap);
         return convertView;
     }
+
 
     class ViewHolder {
         ImageView imageView;

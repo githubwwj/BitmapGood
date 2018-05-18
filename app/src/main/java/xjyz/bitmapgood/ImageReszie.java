@@ -1,42 +1,60 @@
 package xjyz.bitmapgood;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 /**
- * Created by Administrator on 2018/5/17 0017.
+ * Created by Administrator on 2018/1/12 0012.
  */
 
 public class ImageReszie {
 
-    public static Bitmap resizeBitmap(Resources resources, int id, int maxWidth, int maxHeight, Bitmap bitmap) {
-
+    /**
+     *  缩放bitmap
+     * @param context
+     * @param id
+     * @param maxW
+     * @param maxH
+     * @return
+     */
+    public static Bitmap resizeBitmap(Context context,int id,int maxW,int maxH,boolean hasAlpha,Bitmap reusable){
+        Resources resources = context.getResources();
         BitmapFactory.Options options = new BitmapFactory.Options();
-//
-//        //获取图片信息，不需要把图片加载到内存，获取图片宽高等信息
+        // 只解码出 outxxx参数 比如 宽、高
         options.inJustDecodeBounds = true;
-        BitmapFactory.decodeResource(resources, id, options);
-
-        int sampleSize = calculateSampleSize(options, maxWidth, maxHeight);
-        //设置图片的缩放比例
-        options.inSampleSize = sampleSize;
-
+        BitmapFactory.decodeResource(resources,id,options);
+        //根据宽、高进行缩放
+        int w = options.outWidth;
+        int h = options.outHeight;
+        //设置缩放系数
+        options.inSampleSize = calcuteInSampleSize(w,h,maxW,maxH);
+        if (!hasAlpha){
+            options.inPreferredConfig = Bitmap.Config.RGB_565;
+        }
         options.inJustDecodeBounds = false;
+        // 需要设置为异变的才能够被复用内存
         options.inMutable = true;
-        options.inBitmap = bitmap;
-        return BitmapFactory.decodeResource(resources, id, options);
+        options.inBitmap = reusable;
+        return BitmapFactory.decodeResource(resources,id,options);
     }
 
-    private static int calculateSampleSize(BitmapFactory.Options options, int maxWidth, int maxHeight) {
-        int sampleSize = 1; //设置默认缩放比例
-        while (true) {
-            if (options.outWidth / sampleSize > maxWidth && options.outHeight / sampleSize > maxHeight) {
-                sampleSize *= 2;
-            } else {
-                break;
-            }
+    /**
+     * 计算缩放系数
+     *
+     * @param w
+     * @param h
+     * @param maxW
+     * @param maxH
+     * @return 缩放的系数
+     */
+    private static int calcuteInSampleSize(int w, int h, int maxW, int maxH) {
+        int inSampleSize = 1;
+        while (w / inSampleSize >= maxW && h / inSampleSize >= maxH) {
+            inSampleSize *= 2;
         }
-        return sampleSize;
+        return inSampleSize;
     }
 }
