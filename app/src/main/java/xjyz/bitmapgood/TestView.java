@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -22,17 +21,13 @@ import java.io.InputStream;
 
 public class TestView extends View {
 
-    private int mViewWidth;
-    private int mViewHeight;
-    private InputStream mInputStream;
+    private int mImageWidth, mImageHeight;
     private BitmapRegionDecoder mBitmapRegionDecoder;
-    private BitmapFactory.Options mOption = new BitmapFactory.Options();
-    private int mImageWidth;
-    private int mImageHeight;
-    private float mScale;
+    private int mViewWidth, mViewHeight;
     private Rect mRect = new Rect();
+    private float mScale;
+    private BitmapFactory.Options mOptions = new BitmapFactory.Options();
     private Bitmap mBitmap;
-    private Paint mPaint=new Paint();
 
     public TestView(Context context) {
         this(context, null);
@@ -46,87 +41,52 @@ public class TestView extends View {
         super(context, attrs, defStyleAttr);
     }
 
-    /**
-     * 1  获取图片宽高
-     * @param mInputStream
-     */
-    public void setInputStream(InputStream mInputStream) {
-        this.mInputStream = mInputStream;
 
+    //1 先得到图片的宽高
+    public void setInputSteam(InputStream inputSteam) {
+
+        mOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeStream(inputSteam, null, mOptions);
+        mImageWidth = mOptions.outWidth;
+        mImageHeight = mOptions.outHeight;
+
+        //显示图片的某一块矩形区域
         try {
-            mBitmapRegionDecoder = BitmapRegionDecoder.newInstance(mInputStream, false);
+            mBitmapRegionDecoder = BitmapRegionDecoder.newInstance(inputSteam, false);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        mOption.inJustDecodeBounds = true;
-        BitmapFactory.decodeStream(mInputStream, null, mOption);
-        mImageWidth = mOption.outWidth;
-        mImageHeight = mOption.outHeight;
-
-
-        Log.e("tag", "----mImageWidth=" + mImageWidth + "---mImageHeight" + mImageHeight);
-
-
+        Log.e("tag", "---imageWidth=" + mImageWidth + "---imageHeight=" + mImageHeight);
     }
 
-    /**
-     * 2  测量控件的宽高，确定要画的区域
-     * @param widthMeasureSpec
-     * @param heightMeasureSpec
-     */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         mViewWidth = getMeasuredWidth();
         mViewHeight = getMeasuredHeight();
+        Log.e("tag", "---viewWidth=" + mViewWidth + "---viewHeight=" + mViewHeight);
 
-        Log.e("tag", "---mViewWidth=" + mViewWidth + "-----mViewHeight" + mViewHeight);
-
-        //如果图片区域解码对象为空，不在往下走
-        if (null == mBitmapRegionDecoder) {
-            return;
-        }
-
-        mRect.set(0, 0, 0, 0);
 
         mRect.top = 0;
         mRect.left = 0;
         mRect.right = mImageWidth;
-
-        //计算缩放因子
-        mScale = mViewWidth * 1.0f / mImageWidth;     //  720 / 360 = 2  这个地方是float
+        mScale = mViewWidth * 1.0f / mImageWidth;  // 720/360 = 2  屏幕宽度缩放因子
         mRect.bottom = (int) (mImageHeight / mScale);
-
-        mPaint.setAntiAlias(true);  //消除画笔的锯齿
     }
 
-    /**
-     * 3  绘制要显示的区域
-     * @param canvas
-     */
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        Log.e("tag", "---onDraw=====");
-
-        //如果图片区域解码对象为空，不在往下走
         if (null == mBitmapRegionDecoder) {
             return;
         }
-
-        mOption.inJustDecodeBounds = false;
-
-        mOption.inMutable = true;
-        mOption.inBitmap = mBitmap;
-        mBitmap = mBitmapRegionDecoder.decodeRegion(mRect, mOption);
-
+        mOptions.inJustDecodeBounds = false;
+        mOptions.inMutable = true;
+        mOptions.inBitmap = mBitmap;
+        mBitmap = mBitmapRegionDecoder.decodeRegion(mRect, mOptions);
         Matrix matrix=new Matrix();
-        matrix.postScale(mScale,mScale);
-        canvas.drawBitmap(mBitmap,matrix,mPaint);
+        matrix.setScale(mScale,mScale);
 
+        canvas.drawBitmap(mBitmap,matrix,null);
     }
-
-
-
-
 }

@@ -18,11 +18,11 @@ public class BigBitmapActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_big_bitmap);
 
-        TestView imageView = findViewById(R.id.testView);
+        TestView testView = findViewById(R.id.testView);
         InputStream inputStream = null;
         try {
             inputStream = getAssets().open("big.png");
-            imageView.setInputStream(inputStream);
+            testView.setInputSteam(inputStream);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -33,5 +33,8 @@ public class BigBitmapActivity extends Activity {
             }
         }
 
+
     }
+
+
 }
