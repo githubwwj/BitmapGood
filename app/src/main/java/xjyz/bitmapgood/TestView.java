@@ -34,6 +34,10 @@ public class TestView extends View implements GestureDetector.OnGestureListener 
     private GestureDetector mGestureDetector;
     private Scroller mScroller;
 
+    /**
+     * 1 执行够着函数
+     * @param context
+     */
     public TestView(Context context) {
         this(context, null);
     }
@@ -49,7 +53,9 @@ public class TestView extends View implements GestureDetector.OnGestureListener 
     }
 
 
-    //1 先得到图片的宽高
+    /**
+     *   2 先得到图片的宽高
+     */
     public void setInputSteam(InputStream inputSteam) {
 
         mOptions.inJustDecodeBounds = true;
@@ -66,6 +72,11 @@ public class TestView extends View implements GestureDetector.OnGestureListener 
         Log.e("tag", "---imageWidth=" + mImageWidth + "---imageHeight=" + mImageHeight);
     }
 
+    /**
+     *  3 得到控件宽高，确定图片要显示的区域
+     * @param widthMeasureSpec
+     * @param heightMeasureSpec
+     */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -81,6 +92,10 @@ public class TestView extends View implements GestureDetector.OnGestureListener 
         mRect.bottom = (int) (mViewHeight / mScale);
     }
 
+    /**
+     *  4 确定图片要显示的区域后，把图片画在屏幕上
+     * @param canvas
+     */
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -98,7 +113,7 @@ public class TestView extends View implements GestureDetector.OnGestureListener 
     }
 
     /**
-     * 手机按下事件  可以得到  x y 坐标
+     * 5 手机按下事件  可以得到  x y 坐标
      *
      * @param e
      * @return
@@ -201,4 +216,9 @@ public class TestView extends View implements GestureDetector.OnGestureListener 
     public boolean onTouchEvent(MotionEvent event) {
         return mGestureDetector.onTouchEvent(event);
     }
+
+
+    //1 清除代码执行流程
+    //2 仔细的阅读代码,对于不熟悉的，多花点时间看看，该记得要记一下
+
 }
