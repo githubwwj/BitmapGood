@@ -10,7 +10,10 @@ import android.graphics.Rect;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Scroller;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +22,7 @@ import java.io.InputStream;
  * Created by Administrator on 2018/5/19 0019.
  */
 
-public class TestView extends View {
+public class TestView extends View implements GestureDetector.OnGestureListener {
 
     private int mImageWidth, mImageHeight;
     private BitmapRegionDecoder mBitmapRegionDecoder;
@@ -28,6 +31,8 @@ public class TestView extends View {
     private float mScale;
     private BitmapFactory.Options mOptions = new BitmapFactory.Options();
     private Bitmap mBitmap;
+    private GestureDetector mGestureDetector;
+    private Scroller mScroller;
 
     public TestView(Context context) {
         this(context, null);
@@ -39,6 +44,8 @@ public class TestView extends View {
 
     public TestView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        mGestureDetector = new GestureDetector(context, this);
+        mScroller = new Scroller(context);
     }
 
 
@@ -71,7 +78,7 @@ public class TestView extends View {
         mRect.left = 0;
         mRect.right = mImageWidth;
         mScale = mViewWidth * 1.0f / mImageWidth;  // 720/360 = 2  屏幕宽度缩放因子
-        mRect.bottom = (int) (mImageHeight / mScale);
+        mRect.bottom = (int) (mViewHeight / mScale);
     }
 
     @Override
@@ -84,9 +91,114 @@ public class TestView extends View {
         mOptions.inMutable = true;
         mOptions.inBitmap = mBitmap;
         mBitmap = mBitmapRegionDecoder.decodeRegion(mRect, mOptions);
-        Matrix matrix=new Matrix();
-        matrix.setScale(mScale,mScale);
+        Matrix matrix = new Matrix();
+        matrix.setScale(mScale, mScale);
 
-        canvas.drawBitmap(mBitmap,matrix,null);
+        canvas.drawBitmap(mBitmap, matrix, null);
+    }
+
+    /**
+     * 手机按下事件  可以得到  x y 坐标
+     *
+     * @param e
+     * @return
+     */
+    @Override
+    public boolean onDown(MotionEvent e) {
+        if (!mScroller.isFinished()) {
+            mScroller.forceFinished(true);
+        }
+        return true;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent e) {
+
+    }
+
+    /**
+     * 单击事件
+     *
+     * @param e
+     * @return
+     */
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+        return false;
+    }
+
+    /**
+     * 手指在屏幕上拖动
+     *
+     * @param e1        手指按下事件
+     * @param e2        手指当前事件
+     * @param distanceX 手指横向滑动距离
+     * @param distanceY 手指纵向滑动距离
+     * @return
+     */
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+//        手指从上往下滑动图片，顶部距离增加，底部的距离也增加
+//        手指从下往上滑动图片，顶部距离介绍，顶部距离也介绍
+        mRect.offset(0, (int) distanceY);
+        if (mRect.bottom > mImageHeight) {
+            mRect.bottom = mImageHeight;
+            mRect.top = mImageHeight - (int) (mViewHeight / mScale);
+        } else if (mRect.top < 0) {
+            mRect.top = 0;
+            mRect.bottom = (int) (mViewHeight / mScale);
+        }
+        invalidate();
+        return false;
+    }
+
+    /**
+     * 长点击时间
+     *
+     * @param e
+     */
+    @Override
+    public void onLongPress(MotionEvent e) {
+
+    }
+
+    /**
+     * 手指离开屏幕滑动时间
+     *
+     * @param e1        手指按下事件
+     * @param e2        手指当前事件
+     * @param velocityX
+     * @param velocityY
+     * @return
+     */
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        //开始的 x y
+        //x y 速度
+        //不管横向滑动
+//        int minY, int maxY
+        Log.e("tag", "------velocityY=" + velocityY);
+        mScroller.fling(0, mRect.top, 0, (int) -velocityY, 0, 0, 0, mImageHeight - (int) (mViewHeight / mScale));
+        return false;
+    }
+
+    @Override
+    public void computeScroll() {
+        super.computeScroll();
+        //如果已经滑动完毕,不用往下走
+        if (mScroller.isFinished()) {
+            return;
+        }
+        //如果还在滚动中
+        if (mScroller.computeScrollOffset()) {
+            mRect.top = mScroller.getCurrY();
+            mRect.bottom = mRect.top + (int) (mViewHeight / mScale);
+            invalidate();
+        }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return mGestureDetector.onTouchEvent(event);
     }
 }
