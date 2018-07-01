@@ -12,8 +12,16 @@ android {
     }
 
     buildTypes {
+        sit {
+            debuggable true
+        }
         release {
             minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled true  //开始混淆
+            println "sss=${getDefaultProguardFile('proguard-android.txt')}"
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

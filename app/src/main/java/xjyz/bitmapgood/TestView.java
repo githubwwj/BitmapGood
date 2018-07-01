@@ -52,7 +52,6 @@ public class TestView extends View implements GestureDetector.OnGestureListener 
         mScroller = new Scroller(context);
     }
 
-
     /**
      *   2 先得到图片的宽高
      */
@@ -154,7 +153,7 @@ public class TestView extends View implements GestureDetector.OnGestureListener 
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 //        手指从上往下滑动图片，顶部距离增加，底部的距离也增加
-//        手指从下往上滑动图片，顶部距离介绍，顶部距离也介绍
+//        手指从下往上滑动图片，顶部距离减少，顶部距离也减少
         mRect.offset(0, (int) distanceY);
         if (mRect.bottom > mImageHeight) {
             mRect.bottom = mImageHeight;

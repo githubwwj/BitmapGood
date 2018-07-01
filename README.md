@@ -10,6 +10,7 @@
 |5|05-Android大图加载简单了解|https://www.iqiyi.com/w_19rzc8hb9t.html|
 |6|06-Android模仿微信浏览大图与项目地址|https://www.iqiyi.com/w_19rzc1or5d.html|
 |7|07-Android模仿微信浏览大图2|http://www.iqiyi.com/w_19rzbyk4sp.html|
+|8|08-Android浏览大图该怎么学习|https://www.iqiyi.com/w_19rzcsc3ft.html|
 
 
 
